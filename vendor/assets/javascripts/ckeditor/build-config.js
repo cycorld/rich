@@ -54,7 +54,7 @@ var CKBUILDER_CONFIG = {
 		'image' : 1,
 		'indent' : 1,
 		'smiley' : 1,
-		'justify' : 1,
+		'justify' : 0,
 		'link' : 1,
 		'list' : 1,
 		'liststyle' : 1,

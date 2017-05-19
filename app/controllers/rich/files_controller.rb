@@ -9,18 +9,18 @@ module Rich
     def index
       @type = params[:type]
 
-      if(params[:scoped] == 'true')
-        if(@type == "image")
-          @items = RichFile.images.order("created_at DESC").where("owner_type = ? AND owner_id = ?", params[:scope_type], params[:scope_id]).page params[:page]
-        else
-          @items = RichFile.files.order("created_at DESC").where("owner_type = ? AND owner_id = ?", params[:scope_type], params[:scope_id]).page params[:page]
-        end
+      if(@type == "image")
+        @items = RichFile.images.order("created_at DESC").where("owner_type = ? AND owner_id = ?", 'user', current_user.id).page params[:page]
       else
-        if(@type == "image")
-          @items = RichFile.images.order("created_at DESC").page params[:page]
-        else
-          @items = RichFile.files.order("created_at DESC").page params[:page]
-        end
+        @items = RichFile.files.order("created_at DESC").where("owner_type = ? AND owner_id = ?", 'user', currnet_user.id).page params[:page]
+      end
+
+      if params[:search].present?
+        @items = @items.where('rich_file_file_name LIKE ?', "%#{params[:search]}%")
+      end
+
+      if params[:alpha].present?
+        @items = @items.order("rich_file_file_name ASC")
       end
 
       # stub for new file
@@ -50,10 +50,8 @@ module Rich
 
       @file = RichFile.new(:simplified_type => params[:simplified_type])
 
-      if(params[:scoped] == 'true')
-        @file.owner_type = params[:scope_type]
-        @file.owner_id = params[:scope_id].to_i
-      end
+      @file.owner_type = 'user'
+      @file.owner_id = current_user.id
 
       # use the file from Rack Raw Upload
       file_params = params[:file] || params[:qqfile]
